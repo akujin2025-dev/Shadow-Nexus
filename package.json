@@ -1,0 +1,16 @@
+{
+  "name": "shadow-nexus",
+  "version": "1.0.0",
+  "description": "Discord bot for Shadow Syndicate alliance automation and knowledge base.",
+  "main": "index.js",
+  "type": "module",
+  "scripts": {
+    "start": "node index.js",
+    "deploy": "node deploy-commands.js"
+  },
+  "dependencies": {
+    "discord.js": "^14.14.1",
+    "dotenv": "^16.3.1",
+    "node-fetch": "^3.3.2"
+  }
+}
