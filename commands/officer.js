@@ -1,4 +1,14 @@
 import { SlashCommandBuilder, EmbedBuilder } from 'discord.js';
+import fs from 'node:fs';
+import path from 'node:path';
+import { fileURLToPath } from 'node:url';
+
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
+
+// Load officer data
+const officersPath = path.join(__dirname, '../data/officers.json');
+const officers = JSON.parse(fs.readFileSync(officersPath, 'utf8'));
 
 export default {
   data: new SlashCommandBuilder()
@@ -12,38 +22,21 @@ export default {
     ),
 
   async execute(interaction) {
-    const name = interaction.options.getString('name').toLowerCase();
+    const input = interaction.options.getString('name').toLowerCase();
 
-    // Temporary officer database — we will expand this into Sheets or API later
-    const officers = {
-      'kirk': {
-        title: 'James T. Kirk',
-        role: 'Command',
-        ability: 'Inspirational Leader',
-        synergy: 'Spock, Uhura',
-        description: 'Boosts critical chance and increases damage when paired with synergy crew.'
-      },
-      'spock': {
-        title: 'Spock',
-        role: 'Science',
-        ability: 'Logical',
-        synergy: 'Kirk, Uhura',
-        description: 'Reduces damage taken and boosts shield regeneration.'
-      },
-      'uhura': {
-        title: 'Nyota Uhura',
-        role: 'Command',
-        ability: 'Interception Specialist',
-        synergy: 'Kirk, Spock',
-        description: 'Improves mitigation and increases accuracy in combat.'
-      }
-    };
+    // Direct match
+    let officer = officers[input];
 
-    const officer = officers[name];
+    // Alias match
+    if (!officer) {
+      officer = Object.values(officers).find(o =>
+        o.aliases?.map(a => a.toLowerCase()).includes(input)
+      );
+    }
 
     if (!officer) {
       return interaction.reply({
-        content: `I don’t have data for **${name}** yet.`,
+        content: `I don’t have data for **${input}** yet.`,
         ephemeral: true
       });
     }
