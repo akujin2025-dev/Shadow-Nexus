@@ -11,10 +11,7 @@ const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
 // Load officer data
-const DATA_PATH = path.join(
-  __dirname,
-  "../../extractors/stfc-space/output.json"
-);
+const DATA_PATH = path.join(__dirname, "../data/output.json");
 const { officers } = JSON.parse(fs.readFileSync(DATA_PATH, "utf8"));
 
 // Build lookup maps
