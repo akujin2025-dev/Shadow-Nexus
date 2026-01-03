@@ -1,6 +1,7 @@
 import {
   SlashCommandBuilder,
-  EmbedBuilder
+  EmbedBuilder,
+  InteractionResponseFlags
 } from "discord.js";
 import fs from "fs";
 import path from "path";
@@ -210,7 +211,7 @@ export default {
       if (!officer) {
         return interaction.reply({
           content: `No officer found matching **${name}**.`,
-          ephemeral: true,
+          flags: InteractionResponseFlags.Ephemeral
         });
       }
 
@@ -238,7 +239,7 @@ export default {
       if (results.length === 0) {
         return interaction.reply({
           content: `No officers found matching **${query}**.`,
-          ephemeral: true,
+          flags: InteractionResponseFlags.Ephemeral
         });
       }
 
@@ -268,7 +269,7 @@ export default {
       if (!o1 || !o2) {
         return interaction.reply({
           content: `One or both officers could not be found.`,
-          ephemeral: true,
+          flags: InteractionResponseFlags.Ephemeral
         });
       }
 
