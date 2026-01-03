@@ -1,12 +1,16 @@
-const {
+import {
   SlashCommandBuilder,
-  EmbedBuilder,
-  PermissionFlagsBits,
-} = require("discord.js");
-const path = require("path");
-const fs = require("fs");
+  EmbedBuilder
+} from "discord.js";
+import fs from "fs";
+import path from "path";
+import { fileURLToPath } from "url";
 
-// Load officer data once
+// Resolve __dirname in ES modules
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
+
+// Load officer data
 const DATA_PATH = path.join(
   __dirname,
   "../../extractors/stfc-space/output.json"
@@ -15,14 +19,9 @@ const { officers } = JSON.parse(fs.readFileSync(DATA_PATH, "utf8"));
 
 // Build lookup maps
 const officerByName = new Map();
-const officerById = new Map();
+officers.forEach((o) => officerByName.set(o.name.toLowerCase(), o));
 
-officers.forEach((o) => {
-  officerByName.set(o.name.toLowerCase(), o);
-  officerById.set(o.id, o);
-});
-
-// Utility: fuzzy match
+// Fuzzy match helper
 function fuzzyFind(query) {
   query = query.toLowerCase();
   return (
@@ -32,13 +31,13 @@ function fuzzyFind(query) {
   );
 }
 
-// Utility: portrait resolver
+// Portrait resolver
 function getPortrait(officer) {
   if (!officer.portrait) return null;
   return `https://stfc.space${officer.portrait}`;
 }
 
-// Utility: embed builder
+// Shared embed builder
 function buildOfficerEmbed(officer) {
   const rarity = officer.rarity || "Unknown";
   const group = officer.group || "Unknown Group";
@@ -100,10 +99,12 @@ function buildOfficerEmbed(officer) {
   return embed;
 }
 
-module.exports = {
+export default {
   data: new SlashCommandBuilder()
     .setName("officer")
     .setDescription("Shadow Nexus: Officer intelligence module")
+
+    // /officer info
     .addSubcommand((sub) =>
       sub
         .setName("info")
@@ -116,6 +117,8 @@ module.exports = {
             .setRequired(true)
         )
     )
+
+    // /officer search
     .addSubcommand((sub) =>
       sub
         .setName("search")
@@ -127,6 +130,8 @@ module.exports = {
             .setRequired(true)
         )
     )
+
+    // /officer compare
     .addSubcommand((sub) =>
       sub
         .setName("compare")
@@ -147,7 +152,7 @@ module.exports = {
         )
     ),
 
-  // Autocomplete
+  // Autocomplete handler
   async autocomplete(interaction) {
     const focused = interaction.options.getFocused().toLowerCase();
 
@@ -159,7 +164,7 @@ module.exports = {
     await interaction.respond(matches);
   },
 
-  // Execute
+  // Command execution
   async execute(interaction) {
     const sub = interaction.options.getSubcommand();
 
