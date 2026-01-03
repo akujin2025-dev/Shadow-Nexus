@@ -1,7 +1,6 @@
 import {
   SlashCommandBuilder,
-  EmbedBuilder,
-  InteractionResponseFlags
+  EmbedBuilder
 } from "discord.js";
 import fs from "fs";
 import path from "path";
@@ -10,6 +9,9 @@ import { fileURLToPath } from "url";
 // Resolve __dirname in ES modules
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
+
+// Universal EPHEMERAL flag (works on all Discord.js v14+)
+const EPHEMERAL = 1 << 6;
 
 // -----------------------------
 // Load Officer Data (Safe Loader)
@@ -211,7 +213,7 @@ export default {
       if (!officer) {
         return interaction.reply({
           content: `No officer found matching **${name}**.`,
-          flags: InteractionResponseFlags.Ephemeral
+          flags: EPHEMERAL
         });
       }
 
@@ -239,7 +241,7 @@ export default {
       if (results.length === 0) {
         return interaction.reply({
           content: `No officers found matching **${query}**.`,
-          flags: InteractionResponseFlags.Ephemeral
+          flags: EPHEMERAL
         });
       }
 
@@ -269,7 +271,7 @@ export default {
       if (!o1 || !o2) {
         return interaction.reply({
           content: `One or both officers could not be found.`,
-          flags: InteractionResponseFlags.Ephemeral
+          flags: EPHEMERAL
         });
       }
 
