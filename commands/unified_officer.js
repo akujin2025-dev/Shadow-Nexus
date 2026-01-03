@@ -41,14 +41,20 @@ officers.forEach((o) => {
   officerByName.set(o.name.toLowerCase(), o);
 });
 
+function normalize(str) {
+  return str.toLowerCase().replace(/[^a-z0-9]/gi, "").trim();
+}
+
 function fuzzyFind(query) {
-  query = query.toLowerCase();
+  const normQuery = normalize(query);
+
   return (
-    officers.find((o) => o?.name?.toLowerCase() === query) ||
-    officers.find((o) => o?.name?.toLowerCase().startsWith(query)) ||
-    officers.find((o) => o?.name?.toLowerCase().includes(query))
+    officers.find((o) => normalize(o.name) === normQuery) ||
+    officers.find((o) => normalize(o.name).startsWith(normQuery)) ||
+    officers.find((o) => normalize(o.name).includes(normQuery))
   );
 }
+
 
 function getPortrait(officer) {
   if (!officer.portrait) return null;
