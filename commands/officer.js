@@ -41,16 +41,17 @@ export default {
       });
     }
 
-    const embed = new EmbedBuilder()
-      .setTitle(officer.title)
-      .setColor('#ff0000')
-      .addFields(
-        { name: 'Role', value: officer.role, inline: true },
-        { name: 'Ability', value: officer.ability, inline: true },
-        { name: 'Synergy', value: officer.synergy, inline: true },
-        { name: 'Description', value: officer.description }
-      )
-      .setFooter({ text: 'Shadow Syndicate Officer Database' });
+const embed = new EmbedBuilder()
+  .setTitle(officer.title)
+  .setColor('#ff0000')
+  .setThumbnail(officer.image)   // ← Add this line
+  .addFields(
+    { name: 'Role', value: officer.role, inline: true },
+    { name: 'Ability', value: officer.ability, inline: true },
+    { name: 'Synergy', value: officer.synergy, inline: true },
+    { name: 'Description', value: officer.description }
+  )
+  .setFooter({ text: 'Shadow Syndicate Officer Database' });
 
     return interaction.reply({ embeds: [embed] });
   }
