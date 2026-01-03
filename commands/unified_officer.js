@@ -31,16 +31,8 @@ try {
 }
 
 // -----------------------------
-// Lookup Maps + Helpers
+// Helpers
 // -----------------------------
-const officerByName = new Map();
-
-// FIX: Skip officers with missing names
-officers.forEach((o) => {
-  if (!o || !o.name) return;
-  officerByName.set(o.name.toLowerCase(), o);
-});
-
 function normalize(str) {
   return str.toLowerCase().replace(/[^a-z0-9]/gi, "").trim();
 }
@@ -49,17 +41,26 @@ function fuzzyFind(query) {
   const normQuery = normalize(query);
 
   return (
-    officers.find((o) => normalize(o.name) === normQuery) ||
-    officers.find((o) => normalize(o.name).startsWith(normQuery)) ||
-    officers.find((o) => normalize(o.name).includes(normQuery))
+    officers.find((o) => normalize(o?.name || "") === normQuery) ||
+    officers.find((o) => normalize(o?.name || "").startsWith(normQuery)) ||
+    officers.find((o) => normalize(o?.name || "").includes(normQuery))
   );
 }
-
 
 function getPortrait(officer) {
   if (!officer.portrait) return null;
   return `https://stfc.space${officer.portrait}`;
 }
+
+// -----------------------------
+// Build lookup map (safe)
+// -----------------------------
+const officerByName = new Map();
+
+officers.forEach((o) => {
+  if (!o || !o.name) return;
+  officerByName.set(o.name.toLowerCase(), o);
+});
 
 // -----------------------------
 // Shared Embed Builder
@@ -185,10 +186,10 @@ export default {
   // Autocomplete Handler
   // -----------------------------
   async autocomplete(interaction) {
-    const focused = interaction.options.getFocused().toLowerCase();
+    const focused = normalize(interaction.options.getFocused());
 
     const matches = officers
-      .filter((o) => o?.name?.toLowerCase().includes(focused))
+      .filter((o) => normalize(o?.name || "").includes(focused))
       .slice(0, 25)
       .map((o) => ({ name: o.name, value: o.name }));
 
@@ -203,8 +204,8 @@ export default {
 
     // /officer info
     if (sub === "info") {
-      const name = interaction.options.getString("name").toLowerCase();
-      const officer = officerByName.get(name) || fuzzyFind(name);
+      const name = interaction.options.getString("name");
+      const officer = officerByName.get(name.toLowerCase()) || fuzzyFind(name);
 
       if (!officer) {
         return interaction.reply({
@@ -218,22 +219,19 @@ export default {
 
     // /officer search
     if (sub === "search") {
-      const query = interaction.options.getString("query").toLowerCase();
+      const query = interaction.options.getString("query");
+      const normQuery = normalize(query);
 
       const results = officers.filter((o) => {
         if (!o?.name) return false;
 
         return (
-          o.name.toLowerCase().includes(query) ||
-          (o.rarity || "").toLowerCase().includes(query) ||
-          (o.group || "").toLowerCase().includes(query) ||
-          (o.traits || []).some((t) => t.toLowerCase().includes(query)) ||
-          (o.captain_ability?.description || "")
-            .toLowerCase()
-            .includes(query) ||
-          (o.officer_ability?.description || "")
-            .toLowerCase()
-            .includes(query)
+          normalize(o.name).includes(normQuery) ||
+          normalize(o.rarity || "").includes(normQuery) ||
+          normalize(o.group || "").includes(normQuery) ||
+          (o.traits || []).some((t) => normalize(t).includes(normQuery)) ||
+          normalize(o.captain_ability?.description || "").includes(normQuery) ||
+          normalize(o.officer_ability?.description || "").includes(normQuery)
         );
       });
 
@@ -261,11 +259,11 @@ export default {
 
     // /officer compare
     if (sub === "compare") {
-      const first = interaction.options.getString("first").toLowerCase();
-      const second = interaction.options.getString("second").toLowerCase();
+      const first = interaction.options.getString("first");
+      const second = interaction.options.getString("second");
 
-      const o1 = officerByName.get(first) || fuzzyFind(first);
-      const o2 = officerByName.get(second) || fuzzyFind(second);
+      const o1 = officerByName.get(first.toLowerCase()) || fuzzyFind(first);
+      const o2 = officerByName.get(second.toLowerCase()) || fuzzyFind(second);
 
       if (!o1 || !o2) {
         return interaction.reply({
