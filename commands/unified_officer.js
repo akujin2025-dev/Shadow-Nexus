@@ -10,15 +10,32 @@ import { fileURLToPath } from "url";
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
-// Load officer data
-const DATA_PATH = path.join(__dirname, "../data/output.json");
-const { officers } = JSON.parse(fs.readFileSync(DATA_PATH, "utf8"));
+// -----------------------------
+// Load Officer Data (Safe Loader)
+// -----------------------------
+let officers = [];
 
-// Build lookup maps
+try {
+  const DATA_PATH = path.join(__dirname, "../data/output.json");
+  const raw = fs.readFileSync(DATA_PATH, "utf8");
+  const parsed = JSON.parse(raw);
+
+  if (parsed && Array.isArray(parsed.officers)) {
+    officers = parsed.officers;
+    console.log(`Loaded ${officers.length} officers from output.json`);
+  } else {
+    console.error("output.json missing 'officers' array");
+  }
+} catch (err) {
+  console.error("Failed to load officer data:", err.message);
+}
+
+// -----------------------------
+// Lookup Maps + Helpers
+// -----------------------------
 const officerByName = new Map();
 officers.forEach((o) => officerByName.set(o.name.toLowerCase(), o));
 
-// Fuzzy match helper
 function fuzzyFind(query) {
   query = query.toLowerCase();
   return (
@@ -28,13 +45,14 @@ function fuzzyFind(query) {
   );
 }
 
-// Portrait resolver
 function getPortrait(officer) {
   if (!officer.portrait) return null;
   return `https://stfc.space${officer.portrait}`;
 }
 
-// Shared embed builder
+// -----------------------------
+// Shared Embed Builder
+// -----------------------------
 function buildOfficerEmbed(officer) {
   const rarity = officer.rarity || "Unknown";
   const group = officer.group || "Unknown Group";
@@ -51,7 +69,7 @@ function buildOfficerEmbed(officer) {
     .setTitle(`${officer.name} — ${rarity} (${group})`)
     .setThumbnail(portrait)
     .setFooter({
-      text: `Data from STFC.space • Updated ${officer.lastUpdated}`,
+      text: `Data from STFC.space • Updated ${officer.lastUpdated || "N/A"}`,
     });
 
   if (captain.name) {
@@ -96,6 +114,9 @@ function buildOfficerEmbed(officer) {
   return embed;
 }
 
+// -----------------------------
+// Slash Command Definition
+// -----------------------------
 export default {
   data: new SlashCommandBuilder()
     .setName("officer")
@@ -149,7 +170,9 @@ export default {
         )
     ),
 
-  // Autocomplete handler
+  // -----------------------------
+  // Autocomplete Handler
+  // -----------------------------
   async autocomplete(interaction) {
     const focused = interaction.options.getFocused().toLowerCase();
 
@@ -161,7 +184,9 @@ export default {
     await interaction.respond(matches);
   },
 
-  // Command execution
+  // -----------------------------
+  // Command Execution
+  // -----------------------------
   async execute(interaction) {
     const sub = interaction.options.getSubcommand();
 
