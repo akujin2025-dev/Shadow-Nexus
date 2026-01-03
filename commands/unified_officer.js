@@ -34,14 +34,19 @@ try {
 // Lookup Maps + Helpers
 // -----------------------------
 const officerByName = new Map();
-officers.forEach((o) => officerByName.set(o.name.toLowerCase(), o));
+
+// FIX: Skip officers with missing names
+officers.forEach((o) => {
+  if (!o || !o.name) return;
+  officerByName.set(o.name.toLowerCase(), o);
+});
 
 function fuzzyFind(query) {
   query = query.toLowerCase();
   return (
-    officers.find((o) => o.name.toLowerCase() === query) ||
-    officers.find((o) => o.name.toLowerCase().startsWith(query)) ||
-    officers.find((o) => o.name.toLowerCase().includes(query))
+    officers.find((o) => o?.name?.toLowerCase() === query) ||
+    officers.find((o) => o?.name?.toLowerCase().startsWith(query)) ||
+    officers.find((o) => o?.name?.toLowerCase().includes(query))
   );
 }
 
@@ -177,7 +182,7 @@ export default {
     const focused = interaction.options.getFocused().toLowerCase();
 
     const matches = officers
-      .filter((o) => o.name.toLowerCase().includes(focused))
+      .filter((o) => o?.name?.toLowerCase().includes(focused))
       .slice(0, 25)
       .map((o) => ({ name: o.name, value: o.name }));
 
@@ -210,6 +215,8 @@ export default {
       const query = interaction.options.getString("query").toLowerCase();
 
       const results = officers.filter((o) => {
+        if (!o?.name) return false;
+
         return (
           o.name.toLowerCase().includes(query) ||
           (o.rarity || "").toLowerCase().includes(query) ||
