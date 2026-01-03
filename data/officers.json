@@ -1,0 +1,26 @@
+{
+  "kirk": {
+    "title": "James T. Kirk",
+    "role": "Command",
+    "ability": "Inspirational Leader",
+    "synergy": "Spock, Uhura",
+    "description": "Boosts critical chance and increases damage when paired with synergy crew.",
+    "aliases": ["jim", "james", "captain kirk", "jtk"]
+  },
+  "spock": {
+    "title": "Spock",
+    "role": "Science",
+    "ability": "Logical",
+    "synergy": "Kirk, Uhura",
+    "description": "Reduces damage taken and boosts shield regeneration.",
+    "aliases": ["science officer", "mr spock"]
+  },
+  "uhura": {
+    "title": "Nyota Uhura",
+    "role": "Command",
+    "ability": "Interception Specialist",
+    "synergy": "Kirk, Spock",
+    "description": "Improves mitigation and increases accuracy in combat.",
+    "aliases": ["communications", "comm officer"]
+  }
+}
