@@ -19,9 +19,10 @@ const EPHEMERAL = 1 << 6;
 let officers = [];
 
 try {
-  const DATA_PATH = path.join(__dirname, "../data/output.json");
-  const raw = fs.readFileSync(DATA_PATH, "utf8");
-  const parsed = JSON.parse(raw);
+    const DATA_PATH = "/data/officers.json";  // Read from Railway volume
+    const raw = fs.readFileSync(DATA_PATH, "utf8");
+    const parsed = JSON.parse(raw);
+
 
   if (parsed && Array.isArray(parsed.officers)) {
     officers = parsed.officers;
